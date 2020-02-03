@@ -7,6 +7,7 @@ import tensorflow as tf
 from sklearn.model_selection import train_test_split
 from keras.utils import to_categorical 
 
+# Importing images for training, testing, and validation
 file_paths =  glob.glob('/Users/juliechen/documents/algae/algModPics/*')
 imgs = [imageio.imread(path) for path in file_paths]
 imgs = np.asarray(imgs)
@@ -167,7 +168,7 @@ algMod= Transfer_CNN_Model(train_X, train_Y, test_X, test_Y, valid_X, valid_Y, 6
 algMod.construct()
 algMod.model.summary()
 #algMod.train()
-#algMod.save('algMod18set3.h5py')
+#algMod.save('algMod.h5py')
 algMod.load('algMod.h5py')
 algMod.test()
 algMod.manualCheck(10)
