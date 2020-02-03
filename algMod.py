@@ -7,30 +7,29 @@ import tensorflow as tf
 from sklearn.model_selection import train_test_split
 from keras.utils import to_categorical 
 
-file_paths =  glob.glob(r'/Users/juliechen/documents/algModPics*')
-imgs = [misc.imread(path) for path in file_paths]
+file_paths =  glob.glob('/Users/juliechen/documents/algae/algModPics/*')
+imgs = [imageio.imread(path) for path in file_paths]
 imgs = np.asarray(imgs)
-print (imgs[0].shape)
+print ("shape before resizing: " + str(imgs[0].shape))
 image_list=[]
 for img in imgs:
     img = misc.imresize(img, (75, 75, 3))
     image_list.append(img)
 image_tuple=tuple(image_list)
 stacked_imgs=np.stack(image_tuple, axis=0)
-print (stacked_imgs.shape)
+print ("shape after resizing:" + str(stacked_imgs.shape))
 
 num_images=imgs.shape[0]
 labels= np.zeros(num_images)
 for n in range(num_images):
     fname = path.basename(file_paths[n])[0]
     labels[n]=fname
-print (labels)
 
 # Split 10% of the images and labels to testing data
 train_X, test_X, train_Y, test_Y = train_test_split(stacked_imgs, labels, test_size=0.1, random_state=78)
 
-print (train_X.shape, test_X.shape)
-print (test_Y)
+print ("shape of training data images:" +str(train_X.shape))
+print ("shape of test data images:" + str(test_X.shape))
 
 #Change the labels from categorical to one-hot encoding
 #train_Y = to_categorical(train_Y)
@@ -41,6 +40,9 @@ train_X, valid_X, train_Y, valid_Y = train_test_split(train_X, train_Y, test_siz
 
 
 #Load realPredict image data -- no labels
+"""
+This section loads real images which were used during the project to test the ability of the CNN model to accurately classify images taken by a drone over algae simulated water surfaces. Users can set up their real test images under the appropriate path directory and use the built in class function realTest to have the model classify the image according to risk of algae contamination.
+"""
 #file_paths =  glob.glob(r'C:\Users\algae\Pictures\Testing Image Data\Run1\Water1\*')
 #rImgs = [misc.imread(path) for path in file_paths]
 #rImgs = np.asarray(rImgs)
@@ -137,10 +139,14 @@ class Transfer_CNN_Model(CNN_Model):
         print('Test loss:', test_eval[0])
         print('Test accuracy:', test_eval[1])
     def manualCheck(self, test_num):
+    #Runs a manual check of model on a select number of photos to allow user to verify model for demonstration purposes.
         prediction= (self.model.predict(self.test_X, batch_size=self.b_size, verbose=1, steps=None))
         test_Y1=to_categorical (self.test_Y)
+        print ("Predicted likelihood of algae contamination for a manual check of "+str(test_num)+" sample images:")
+        print ("[P(algae), P(non-algae)]")
         print (prediction[0: test_num ,0: self.num_classes])
         #This next line is modified because the labels were not one-hot encoded in with the algae dataset
+        print ("True labels for the manual check:")
         print (test_Y1[0: test_num])
     def realTest(self, real_X):
         realPrediction= (self.model.predict(real_X, batch_size=self.b_size, verbose=1, steps=None))
@@ -161,10 +167,10 @@ algMod= Transfer_CNN_Model(train_X, train_Y, test_X, test_Y, valid_X, valid_Y, 6
 algMod.construct()
 algMod.model.summary()
 #algMod.train()
-#algMod.save('algMod.h5py')
+#algMod.save('algMod18set3.h5py')
 algMod.load('algMod.h5py')
 algMod.test()
-algMod.manualCheck(11)
-algMod.realTest(real_X)
+algMod.manualCheck(10)
+#algMod.realTest(real_X)
 
 
